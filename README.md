@@ -13,11 +13,13 @@
 ---
 
 <a href="https://github.com/bnxyung2008g/Fluckv1-3105/releases/download/v1.0.0/3105-3006iOS_2.1_1795166516.ipa">
-  <img src="https://img.shields.io/badge/📱%20Download%20IPA-Activate%20Patch-black?style=for-the-badge" alt="Download IPA"/>
+  <img src="https://img.shields.io/badge/-%20%F0%9F%93%B1%20Download%20IPA%20%E2%80%94%20Activate%20Patch-000000?style=for-the-badge&logoColor=white" height="50" alt="Download IPA"/>
 </a>
-&nbsp;&nbsp;
+
+<br/><br/>
+
 <a href="https://github.com/bnxyung2008g/Fluckv1-3105/releases/download/v1.0.0/FLUCK.V1.0.0.3105">
-  <img src="https://img.shields.io/badge/⬇️%20Download%20Source-.3105%20Patch-blue?style=for-the-badge" alt="Download Source"/>
+  <img src="https://img.shields.io/badge/-%20%E2%AC%87%EF%B8%8F%20Download%203105-1a73e8?style=for-the-badge&logoColor=white" height="50" alt="Download 3105"/>
 </a>
 
 </div>
