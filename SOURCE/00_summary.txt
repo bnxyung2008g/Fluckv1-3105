@@ -1,0 +1,8 @@
+source: assembly-csharp-patch.T0mFTHJhcvgBJrIRhg8bEapnUTM~3D
+ifix offset: 2795, length: 461842
+bridge: IFix.ILFixInterfaceBridge, Assembly-CSharp, Version=0.86.0.518, Culture=neutral, PublicKeyToken=null
+wrapper: IFix.WrappersManagerImpl, Assembly-CSharp, Version=0.86.0.518, Culture=neutral, PublicKeyToken=null
+assembly: , Assembly-CSharp, Version=0.86.0.518, Culture=neutral, PublicKeyToken=null
+types: 117, methods: 215, externMethods: 214, strings: 1188, fields: 404, fixes: 4, newclasses: 0
+
+newclasses: 

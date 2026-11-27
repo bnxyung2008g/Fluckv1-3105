@@ -1,0 +1,4 @@
+#0 methodId=152  COW.GameFacade, Assembly-CSharp, Version=0.86.0.518, Culture=neutral, PublicKeyToken=null::get_UIModelRole
+#1 methodId=110  COW.GamePlay.Player, Assembly-CSharp, Version=0.86.0.518, Culture=neutral, PublicKeyToken=null::IsReallyInStealth
+#2 methodId=168  COW.GamePlay.Player, Assembly-CSharp, Version=0.86.0.518, Culture=neutral, PublicKeyToken=null::get_LastAimingInfoFromWeapon
+#3 methodId=192  COW.GamePlay.SceneEditBoxSelectTool, Assembly-CSharp, Version=0.86.0.518, Culture=neutral, PublicKeyToken=null::OnGUI
