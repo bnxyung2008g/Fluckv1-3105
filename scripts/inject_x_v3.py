@@ -1,19 +1,36 @@
 """
-Logo X final: fondo negro redondo, X BLANCA gruesa redondeada.
+FLUCK V1.0.0 — inject_x_v3.py
+================================
+Logo X final: fondo negro redondo, X blanca gruesa redondeada.
 Exacto para el botón flotante oscuro del menú.
+
+Requisitos:
+  - Pillow (PIL)
+  - cryptography
+  - ifix_codec  (no incluido en este repositorio)
+
+Configura SRC_B, OUT_B y OUT_3 con las rutas correctas en tu equipo antes
+de ejecutar. Las rutas por defecto usan el directorio actual del script.
 """
+
 import struct, sys, base64, io, hashlib, plistlib, os, uuid
 from pathlib import Path
 from datetime import datetime
-
-sys.path.insert(0, r'C:\Users\J\Desktop\SRC CODE ASSEMBLY PROXY')
-from ifix_codec import parse_ifix
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from PIL import Image, ImageDraw
 
-SRC_B  = Path(r'C:\Users\J\Desktop\MI PROJECT\SOURCE\assembly-csharp-patch-FLUCK.bytes')
-OUT_B  = Path(r'C:\Users\J\Desktop\MI PROJECT\SOURCE\assembly-csharp-patch-FLUCK.bytes')
-OUT_3  = Path(r'C:\Users\J\Desktop\MI PROJECT\FLUCK V1.0.0.3105')
+# ---------------------------------------------------------------------------
+# RUTAS — ajusta a tu equipo
+# ---------------------------------------------------------------------------
+SRC_B  = Path('SOURCE/assembly-csharp-patch-FLUCK.bytes')
+OUT_B  = Path('SOURCE/assembly-csharp-patch-FLUCK.bytes')
+OUT_3  = Path('output/FLUCK V1.0.0.3105')
+
+# ifix_codec no está incluido en este repositorio.
+# Descomenta y ajusta la línea de abajo si lo tienes disponible:
+# sys.path.insert(0, r'/ruta/a/ifix_codec')
+# from ifix_codec import parse_ifix
+# from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
 BUNDLE_ID  = 'com.dts.freefireth'
 SCHEMA_VER = 3
 TARGET_408 = 8480
@@ -25,25 +42,17 @@ def encode_7bit(n):
     r.append(n); return bytes(r)
 
 def make_x_logo():
-    """
-    Fondo negro redondo.
-    X BLANCA con brazos muy gruesos y puntas perfectamente redondeadas.
-    """
     SIZE = 128
-    img = Image.new('RGBA', (SIZE, SIZE), (0,0,0,0))  # transparente
+    img = Image.new('RGBA', (SIZE, SIZE), (0,0,0,0))
     draw = ImageDraw.Draw(img)
 
-    # Círculo negro de fondo
     draw.ellipse([0,0,SIZE-1,SIZE-1], fill=(20,20,20,255))
 
-    # X BLANCA gruesa
     pad = 22
     lw  = 24
-
     draw.line([(pad,pad),(SIZE-pad,SIZE-pad)], fill=(255,255,255,255), width=lw)
     draw.line([(SIZE-pad,pad),(pad,SIZE-pad)], fill=(255,255,255,255), width=lw)
 
-    # Puntas redondeadas blancas
     r = lw//2
     for px,py in [(pad,pad),(SIZE-pad,SIZE-pad),(SIZE-pad,pad),(pad,SIZE-pad)]:
         draw.ellipse([px-r,py-r,px+r,py+r], fill=(255,255,255,255))
@@ -63,6 +72,7 @@ def compress_to_target(img, target_len):
     return None,None
 
 def inject_string(data_bytes, sidx, new_b64):
+    from ifix_codec import parse_ifix
     data=bytearray(data_bytes)
     p=parse_ifix(bytes(data),2795)
     old=p['strings'][sidx].encode('utf-8')
@@ -76,9 +86,11 @@ def inject_string(data_bytes, sidx, new_b64):
     return bytes(data)
 
 def seal(pt,key,aad):
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     n=os.urandom(12); return n+AESGCM(key).encrypt(n,pt,aad)
 
 def build_3105(payload):
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     now=datetime.utcnow()
     pid=str(uuid.uuid4()).upper(); ckey=os.urandom(32); rid=str(uuid.uuid4()).upper()
     rules=[{'id':rid,'bundleID':BUNDLE_ID,
@@ -106,8 +118,9 @@ print('FLUCK V1.0.0 — Boton: fondo negro + X blanca')
 print('='*50)
 
 img = make_x_logo()
-img.save(r'C:\Users\J\Desktop\MI PROJECT\logo_X_preview.png')
-print('Preview: logo_X_preview.png')
+preview = Path('logo_X_preview.png')
+img.save(preview)
+print(f'Preview: {preview}')
 
 png408,b64_408 = compress_to_target(img, TARGET_408)
 print(f'[408] PNG={len(png408)}b  B64={len(b64_408)}ch')

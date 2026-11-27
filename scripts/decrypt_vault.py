@@ -1,21 +1,40 @@
 """
-Decrypt the Aurora vault to get UI strings.
-The vault is in field[391] (1181 bytes), encrypted with ChaCha20.
-Key is derived via SHA256 KDF from field[163] (64 bytes).
+FLUCK V1.0.0 — decrypt_vault.py
+================================
+EXPERIMENTAL — no es un descifrador funcional completo.
+
+Este script intenta localizar y descifrar el vault de strings dentro del
+binario IFix del paquete .3105. El vault (campo[391], ~1181 bytes) está
+cifrado con ChaCha20; la clave se deriva via SHA-256 desde el campo[163].
+
+Estado actual: el script vuelca el IFix raw a disco para análisis manual.
+No produce strings descifradas hasta que se complete el análisis del KDF
+exacto y los parámetros de nonce usados en el bytecode.
+
+Requisitos:
+  - ifix_codec  (no incluido en este repositorio)
+  - El binario extraído del .3105 en la ruta configurada en SRC
+
+Configura SRC con la ruta al binario extraído antes de ejecutar.
 """
+
 import struct
 import hashlib
 from pathlib import Path
-
-sys_path = r'C:\Users\J\Desktop\SRC CODE ASSEMBLY PROXY'
 import sys
-sys.path.insert(0, sys_path)
-from ifix_codec import parse_ifix
 
-SRC = Path(r'C:\Users\J\Desktop\MI PROJECT\SOURCE_EXTRACTED\assembly-csharp-patch.T0mFTHJhcvgBJrIRhg8bEapnUTM~3D')
+# ---------------------------------------------------------------------------
+# RUTA — ajusta al binario extraído de tu .3105
+# ---------------------------------------------------------------------------
+SRC = Path('assembly-csharp-patch.T0mFTHJhcvgBJrIRhg8bEapnUTM~3D')
 IFIX_OFFSET = 2795
 
-# ChaCha20 constants (from method[182])
+# ifix_codec no está incluido en este repositorio.
+# Descomenta y ajusta la línea de abajo si lo tienes disponible:
+# sys.path.insert(0, r'/ruta/a/ifix_codec')
+# from ifix_codec import parse_ifix
+
+# ChaCha20 constants
 SIGMA = b'expand 32-byte k'
 
 def rotl(v, n):
@@ -29,17 +48,12 @@ def quarter_round(a, b, c, d):
     return a, b, c, d
 
 def chacha20_block(key, counter, nonce):
-    # Setup state
     state = list(struct.unpack('<16I', SIGMA + key + nonce + struct.pack('<I', counter)))
     working_state = state[:]
-
-    # 20 rounds (10 double rounds)
     for _ in range(10):
-        # Column rounds
         for i in range(0, 16, 4):
             working_state[i], working_state[i+1], working_state[i+2], working_state[i+3] = \
                 quarter_round(working_state[i], working_state[i+1], working_state[i+2], working_state[i+3])
-        # Diagonal rounds
         working_state[0], working_state[5], working_state[10], working_state[15] = \
             quarter_round(working_state[0], working_state[5], working_state[10], working_state[15])
         working_state[1], working_state[6], working_state[11], working_state[12] = \
@@ -48,61 +62,42 @@ def chacha20_block(key, counter, nonce):
             quarter_round(working_state[2], working_state[7], working_state[12], working_state[13])
         working_state[3], working_state[8], working_state[13], working_state[14] = \
             quarter_round(working_state[3], working_state[8], working_state[13], working_state[14])
-
-    # Add original state
     for i in range(16):
         state[i] = (state[i] + working_state[i]) & 0xffffffff
-
     return struct.pack('<16I', *state)
 
 def chacha20_xor(key, nonce, ciphertext):
     plaintext = bytearray(len(ciphertext))
     blocks = (len(ciphertext) + 63) // 64
-
     for i in range(blocks):
         keystream = chacha20_block(key, i, nonce)
         block_start = i * 64
         block_end = min((i + 1) * 64, len(ciphertext))
         for j in range(block_end - block_start):
             plaintext[block_start + j] = ciphertext[block_start + j] ^ keystream[j]
-
     return bytes(plaintext)
 
-def kdf_hkdf_sha256(master_key, salt, info, length):
-    # Simplified HKDF-like KDF from method[165]
-    # The actual method does a custom XOR-based KDF with SHA256
-    # For now, we'll try direct SHA256 of key + salt
-    h = hashlib.sha256()
-    h.update(master_key)
-    h.update(salt)
-    if info:
-        h.update(info)
-    return h.digest()[:length]
-
 def main():
+    if not SRC.exists():
+        sys.exit(
+            f'ERROR: No se encuentra el binario fuente:\n  {SRC}\n'
+            f'Extrae primero el archivo del .3105 y configura SRC en este script.'
+        )
+
     data = SRC.read_bytes()
-    p = parse_ifix(data, IFIX_OFFSET)
+    raw  = data[IFIX_OFFSET:]
+    print(f'Binario cargado: {len(data):,} bytes')
+    print(f'IFix raw size:   {len(raw):,} bytes')
+    print()
+    print('NOTA: Este script está incompleto.')
+    print('  El KDF exacto y los parámetros de nonce no han sido')
+    print('  completamente verificados. El vault permanece cifrado.')
+    print()
 
-    # Find field[163] (64-byte key) and field[391] (vault blob)
-    print(f"Total fields: {len(p['fields'])}")
-    for i, f in enumerate(p['fields']):
-        if f['name'] == 'Mzb27d1c7eb31782':  # field[163]
-            print(f"Found key field at index {i}: {f['name']}")
-        if f['name'] == 'Mz8212c38779179f':  # field[391]
-            print(f"Found vault field at index {i}: {f['name']}")
-
-    # The vault blob is in the bytecode as immediate data
-    # Need to extract from the raw IFix binary
-    # For now, let's just extract and try to find the pattern
-
-    raw = data[IFIX_OFFSET:]
-    print(f"Raw IFix size: {len(raw)}")
-    print(f"Searching for vault pattern...")
-
-    # The vault is 1181 bytes, let's look for that size in bytecode
-    # Actually, let's just dump the raw IFix and analyze manually first
-    Path('C:/Users/J/Desktop/MI PROJECT/raw_ifix.bin').write_bytes(raw)
-    print("Dumped raw IFix to raw_ifix.bin")
+    out = Path('raw_ifix.bin')
+    out.write_bytes(raw)
+    print(f'IFix raw volcado a: {out}')
+    print('Usa un analizador de bytecode IFix para inspeccionar manualmente.')
 
 if __name__ == '__main__':
     main()

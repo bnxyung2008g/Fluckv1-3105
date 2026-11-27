@@ -1,18 +1,35 @@
 """
-X final: círculo negro, X blanca delgada con puntas redondeadas.
+FLUCK V1.0.0 — fix_circle.py
+==============================
+Variante del logo X: círculo negro, X blanca delgada con puntas redondeadas.
+
+Requisitos:
+  - Pillow (PIL)
+  - cryptography
+  - ifix_codec  (no incluido en este repositorio)
+
+Configura SRC_B, OUT_B y OUT_3 con las rutas correctas en tu equipo antes
+de ejecutar. Las rutas por defecto usan el directorio actual del script.
 """
+
 import io, base64, hashlib, plistlib, os, uuid, sys
 from pathlib import Path
 from datetime import datetime
 from PIL import Image, ImageDraw
 
-sys.path.insert(0, r'C:\Users\J\Desktop\SRC CODE ASSEMBLY PROXY')
-from ifix_codec import parse_ifix
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+# ---------------------------------------------------------------------------
+# RUTAS — ajusta a tu equipo
+# ---------------------------------------------------------------------------
+SRC_B = Path('SOURCE/assembly-csharp-patch-FLUCK.bytes')
+OUT_B = Path('SOURCE/assembly-csharp-patch-FLUCK.bytes')
+OUT_3 = Path('output/FLUCK V1.0.0.3105')
 
-SRC_B = Path(r'C:\Users\J\Desktop\MI PROJECT\SOURCE\assembly-csharp-patch-FLUCK.bytes')
-OUT_B = Path(r'C:\Users\J\Desktop\MI PROJECT\SOURCE\assembly-csharp-patch-FLUCK.bytes')
-OUT_3 = Path(r'C:\Users\J\Desktop\MI PROJECT\FLUCK V1.0.0.3105')
+# ifix_codec no está incluido en este repositorio.
+# Descomenta y ajusta la línea de abajo si lo tienes disponible:
+# sys.path.insert(0, r'/ruta/a/ifix_codec')
+# from ifix_codec import parse_ifix
+# from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
 BUNDLE_ID  = 'com.dts.freefireth'
 SCHEMA_VER = 3
 
@@ -23,26 +40,21 @@ def encode_7bit(n):
 
 def make_x_logo():
     S   = 512
-    pad = int(S * 0.13)   # ~67 — margen desde borde
-    lw  = int(S * 0.13)   # ~67 — grosor del brazo
+    pad = int(S * 0.13)
+    lw  = int(S * 0.13)
 
-    # Canvas RGBA transparente
     img  = Image.new('RGBA', (S, S), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
-    # Círculo negro sólido
     draw.ellipse([0, 0, S-1, S-1], fill=(0, 0, 0, 255))
 
-    # Dos líneas blancas diagonales
     draw.line([(pad, pad), (S-pad, S-pad)], fill=(255,255,255,255), width=lw)
     draw.line([(S-pad, pad), (pad, S-pad)], fill=(255,255,255,255), width=lw)
 
-    # Puntas redondeadas en los 4 extremos
     r = lw // 2
     for px, py in [(pad,pad),(S-pad,S-pad),(S-pad,pad),(pad,S-pad)]:
         draw.ellipse([px-r, py-r, px+r, py+r], fill=(255,255,255,255))
 
-    # Máscara circular — recorta las esquinas
     mask = Image.new('L', (S, S), 0)
     ImageDraw.Draw(mask).ellipse([0, 0, S-1, S-1], fill=255)
     img.putalpha(mask)
@@ -63,6 +75,7 @@ def compress_to_target(img, target_len, label=''):
     return None,None
 
 def inject_string(data_bytes, sidx, new_b64):
+    from ifix_codec import parse_ifix
     data=bytearray(data_bytes)
     p=parse_ifix(bytes(data),2795)
     old=p['strings'][sidx].encode('utf-8')
@@ -76,9 +89,11 @@ def inject_string(data_bytes, sidx, new_b64):
     return bytes(data)
 
 def seal(pt,key,aad):
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     n=os.urandom(12); return n+AESGCM(key).encrypt(n,pt,aad)
 
 def build_3105(payload):
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     now=datetime.utcnow(); pid=str(uuid.uuid4()).upper()
     ckey=os.urandom(32); rid=str(uuid.uuid4()).upper()
     rules=[{'id':rid,'bundleID':BUNDLE_ID,
@@ -86,7 +101,7 @@ def build_3105(payload):
         'replacementFilename':'assembly-csharp-patch.T0mFTHJhcvgBJrIRhg8bEapnUTM~3D',
         'replacementData':payload}]
     digs={rid:hashlib.sha256(payload).digest()}
-    proj={'id':pid,'name':'FLUCK V1.2.0','author':'Dev @BNXYUNG7',
+    proj={'id':pid,'name':'FLUCK V1.0.0','author':'Dev @BNXYUNG7',
         'isPrivate':False,'createdAt':now,'updatedAt':now,
         'bundleIdentifiers':[BUNDLE_ID],'directories':[],'rules':rules}
     pl=plistlib.dumps({'project':proj,'replacementDigests':digs},fmt=plistlib.FMT_BINARY)
@@ -103,6 +118,7 @@ def build_3105(payload):
     return pkg
 
 # MAIN
+print('FLUCK V1.0.0 — fix_circle.py')
 print('Generando X: delgada + puntas redondeadas...')
 img = make_x_logo()
 
@@ -111,12 +127,12 @@ print(f'  Centro (blanco): {img.getpixel((c,c))}')
 print(f'  Arriba  (negro): {img.getpixel((c,2))}')
 print(f'  Esquina (trans): {img.getpixel((0,0))}')
 
-# Preview sobre fondo gris
+preview = Path('logo_X_preview.png')
 bg = Image.new('RGB',(512,512),(128,128,128))
 fg = img.resize((512,512), Image.LANCZOS)
 bg.paste(fg,(0,0),fg)
-bg.save(r'C:\Users\J\Desktop\MI PROJECT\logo_X_preview.png')
-print('Preview guardado')
+bg.save(preview)
+print(f'Preview guardado: {preview}')
 
 _, b64_408 = compress_to_target(img, 8480, '408')
 _, b64_800 = compress_to_target(img, 8604, '800')

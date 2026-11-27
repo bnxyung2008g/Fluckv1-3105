@@ -1,15 +1,14 @@
 """
 =============================================================================
-  AURORA-MENU FREE — EDITOR DE COLORES DEL PANEL
-  Basado en análisis real del binario extraído de Aurora-Menu-Free-NO-KEY.3105
+  FLUCK V1.0.0 — EDITOR DE COLORES DEL PANEL
+  Basado en análisis real del binario IFix extraído del paquete .3105
 
   INSTRUCCIONES:
-  1. Cambia las tuplas de color aquí abajo
-  2. Ejecuta:   python COLORS_EDIT.py
-  3. Se genera:  assembly-csharp-patch-RECOLORED.bytes
-  4. Copia ese archivo a:
-        SRC CODE ASSEMBLY PROXY\\payload\\assembly-csharp-patch.bytes
-  5. Ejecuta build_3105.py en SRC CODE ASSEMBLY PROXY para generar el .3105
+  1. Configura SRC_BYTES y OUT_BYTES abajo para que apunten a tu equipo
+  2. Cambia las tuplas de color en la sección "COLORES DEL PANEL"
+  3. Ejecuta:   python COLORS_EDIT.py
+  4. Se genera:  assembly-csharp-patch-RECOLORED.bytes
+  5. Usa ese archivo como payload para empaquetar un nuevo .3105
 
   FORMATO DE COLOR:
     Cada color es una tupla (R_int, G_int, B_int, A_int)
@@ -42,10 +41,10 @@ import sys
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# RUTAS
+# RUTAS — ajusta estas dos líneas a tu equipo
 # ---------------------------------------------------------------------------
-SRC_BYTES = Path(r'C:\Users\J\Desktop\MI PROJECT\SOURCE_EXTRACTED\assembly-csharp-patch.T0mFTHJhcvgBJrIRhg8bEapnUTM~3D')
-OUT_BYTES = Path(r'C:\Users\J\Desktop\MI PROJECT\SOURCE\assembly-csharp-patch-RECOLORED.bytes')
+SRC_BYTES = Path(r'assembly-csharp-patch.T0mFTHJhcvgBJrIRhg8bEapnUTM~3D')
+OUT_BYTES = Path(r'assembly-csharp-patch-RECOLORED.bytes')
 
 # ---------------------------------------------------------------------------
 # HELPERS
@@ -135,7 +134,6 @@ def patch_color(data: bytearray, orig: tuple, new: tuple, label: str) -> bytearr
         pos = idx + 32
         count += 1
     if count == 0:
-        # Intentar sin el opcode (solo los 16 bytes de vals)
         old_vals = seq_bytes(orig)
         pos2 = bytes(data).find(old_vals)
         if pos2 != -1:
@@ -149,19 +147,21 @@ def patch_color(data: bytearray, orig: tuple, new: tuple, label: str) -> bytearr
 
 def main():
     if not SRC_BYTES.exists():
-        sys.exit(f'ERROR: No se encuentra:\n  {SRC_BYTES}')
+        sys.exit(
+            f'ERROR: No se encuentra el binario fuente:\n  {SRC_BYTES}\n'
+            f'Extrae primero el archivo del .3105 y configura SRC_BYTES en este script.'
+        )
 
     data = bytearray(SRC_BYTES.read_bytes())
     print(f'Archivo cargado: {len(data):,} bytes\n')
 
-    # (nuevo_color, color_original, etiqueta)
     patches = [
-        (COLOR_FONDO_PANEL,  (1031127695, 1022739087, 1039516303, 1064682127), 'FONDO_PANEL (azul oscuro)'),
-        (COLOR_ACTIVO,       (1062836634, 1057803469, 1065353216, 1065353216), 'COLOR_ACTIVO (morado claro)'),
-        (COLOR_BTN_INACTIVO, (1027101164, 1032134328, 1036831949, 1064514355), 'BTN_INACTIVO_FONDO'),
-        (COLOR_HEADER,       (1032805417, 1034818683, 1038174126, 1064011039), 'HEADER_FONDO'),
-        (COLOR_DORADO,       (1065353216, 1061326684, 1050253722, 1065353216), 'DORADO (acento)'),
-        (COLOR_PANEL_OSCURO, (1039516303, 1040522936, 1041865114, 1062836634), 'PANEL_OSCURO (secciones)'),
+        (COLOR_FONDO_PANEL,  (1031127695, 1022739087, 1039516303, 1064682127), 'FONDO_PANEL'),
+        (COLOR_ACTIVO,       (1062836634, 1057803469, 1065353216, 1065353216), 'COLOR_ACTIVO'),
+        (COLOR_BTN_INACTIVO, (1027101164, 1032134328, 1036831949, 1064514355), 'BTN_INACTIVO'),
+        (COLOR_HEADER,       (1032805417, 1034818683, 1038174126, 1064011039), 'HEADER'),
+        (COLOR_DORADO,       (1065353216, 1061326684, 1050253722, 1065353216), 'DORADO'),
+        (COLOR_PANEL_OSCURO, (1039516303, 1040522936, 1041865114, 1062836634), 'PANEL_OSCURO'),
         (COLOR_ROJO_ALERTA,  (1064682127, 1045220557, 1046562734, 1065353216), 'ROJO_ALERTA'),
     ]
 
@@ -175,9 +175,6 @@ def main():
     print(f'  Original: {size_orig:,} bytes | Recoloreado: {size_new:,} bytes')
     if size_orig == size_new:
         print('  Tamaños iguales: OK (patch no cambia el tamaño del archivo)')
-    print('\nSiguiente paso:')
-    print('  1. Copia a: SRC CODE ASSEMBLY PROXY\\payload\\assembly-csharp-patch.bytes')
-    print('  2. Ejecuta: python build_3105.py   (en SRC CODE ASSEMBLY PROXY)')
 
 if __name__ == '__main__':
     main()
