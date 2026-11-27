@@ -1,4 +1,4 @@
-# FLUCK V1.0.0
+# FLUCK V1.2.0
 ### Free Fire Menu Mod
 
 <div align="center">
@@ -7,12 +7,18 @@
 
 **Dark Theme • White Text • Custom X Logo • No Password**
 
-[![Release](https://img.shields.io/badge/Release-v1.0.0-brightgreen)](https://github.com/bnxyung2008g/Fluckv1-3105/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/badge/Release-v1.2.0-brightgreen)](https://github.com/bnxyung2008g/Fluckv1-3105/releases/tag/v1.0.0)
 [![License](https://img.shields.io/badge/License-Educational-red)](LICENSE)
 
 ---
 
-[Download .3105](https://github.com/bnxyung2008g/Fluckv1-3105/releases/tag/v1.0.0) • 3.97 MB
+<a href="https://github.com/bnxyung2008g/Fluckv1-3105/releases/download/v1.0.0/3105-3006iOS_2.1_1795166516.ipa">
+  <img src="https://img.shields.io/badge/📱%20Download%20IPA-Activate%20Patch-black?style=for-the-badge" alt="Download IPA"/>
+</a>
+&nbsp;&nbsp;
+<a href="https://github.com/bnxyung2008g/Fluckv1-3105/releases/download/v1.0.0/FLUCK.V1.0.0.3105">
+  <img src="https://img.shields.io/badge/⬇️%20Download%20Source-.3105%20Patch-blue?style=for-the-badge" alt="Download Source"/>
+</a>
 
 </div>
 
@@ -30,10 +36,16 @@
 
 ## 📦 Installation
 
-1. Download `FLUCK V1.0.0.3105`
-2. Copy to your device
-3. Open Free Fire
-4. Menu activates automatically
+### iOS — Activate Patch (IPA)
+1. Download the **IPA** using the button above
+2. Install via **TrollStore** or **Sideloadly**
+3. Open the app — patch activates automatically
+
+### Patch File (.3105 Source)
+1. Download **Source** using the button above
+2. Open with the **3105** app on your iPhone
+3. Apply the patch to Free Fire
+4. Launch the game — menu appears
 
 ---
 
@@ -83,7 +95,7 @@ Complete source included for educational purposes:
 
 ## 👤 Author
 
-**Dev @BNXYUNG7**
+**Dev @BNXYUNG7** — FLUCK V1.2.0
 
 ---
 
