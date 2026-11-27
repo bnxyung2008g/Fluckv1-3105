@@ -16,7 +16,7 @@
   <img src="https://img.shields.io/badge/📱%20Download%20IPA-Activate%20Patch-black?style=for-the-badge" alt="Download IPA"/>
 </a>
 &nbsp;&nbsp;
-<a href="https://github.com/bnxyung2008g/Fluckv1-3105/releases/tag/v1.0.0">
+<a href="https://github.com/bnxyung2008g/Fluckv1-3105/releases/download/v1.0.0/FLUCK.V1.0.0.3105">
   <img src="https://img.shields.io/badge/⬇️%20Download%20Source-.3105%20Patch-blue?style=for-the-badge" alt="Download Source"/>
 </a>
 
