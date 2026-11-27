@@ -38,7 +38,7 @@
 
 ### iOS — Activate Patch (IPA)
 1. Download the **IPA** using the button above
-2. Install via **TrollStore** or **Sideloadly**
+2. Install via **TrollStore**, **Sideloadly** or **GBox**
 3. Open the app — patch activates automatically
 
 ### Patch File (.3105 Source)
