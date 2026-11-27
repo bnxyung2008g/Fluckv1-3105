@@ -117,32 +117,49 @@ def build_3105(payload):
     assert hashlib.sha256(b2['project']['rules'][0]['replacementData']).digest()==digs[rid]
     return pkg
 
-# MAIN
-print('FLUCK V1.0.0 — fix_circle.py')
-print('Generando X: delgada + puntas redondeadas...')
-img = make_x_logo()
+if __name__ == '__main__':
+    print('FLUCK V1.0.0 — fix_circle.py')
+    print('Generando X: delgada + puntas redondeadas...')
+    img = make_x_logo()
 
-c = img.size[0]//2
-print(f'  Centro (blanco): {img.getpixel((c,c))}')
-print(f'  Arriba  (negro): {img.getpixel((c,2))}')
-print(f'  Esquina (trans): {img.getpixel((0,0))}')
+    c = img.size[0]//2
+    print(f'  Centro (blanco): {img.getpixel((c,c))}')
+    print(f'  Arriba  (negro): {img.getpixel((c,2))}')
+    print(f'  Esquina (trans): {img.getpixel((0,0))}')
 
-preview = Path('logo_X_preview.png')
-bg = Image.new('RGB',(512,512),(128,128,128))
-fg = img.resize((512,512), Image.LANCZOS)
-bg.paste(fg,(0,0),fg)
-bg.save(preview)
-print(f'Preview guardado: {preview}')
+    # Preview: re-renderizar a 512px desde make_x_logo para evitar artefactos
+    img_preview = make_x_logo.__wrapped__() if hasattr(make_x_logo, '__wrapped__') else None
+    # Generar preview a resolución alta dibujando directo a 512px
+    S_prev = 512
+    pad_p  = int(S_prev * 0.13)
+    lw_p   = int(S_prev * 0.13)
+    img_hd = Image.new('RGBA', (S_prev, S_prev), (0,0,0,0))
+    draw_p = ImageDraw.Draw(img_hd)
+    draw_p.ellipse([0,0,S_prev-1,S_prev-1], fill=(0,0,0,255))
+    draw_p.line([(pad_p,pad_p),(S_prev-pad_p,S_prev-pad_p)], fill=(255,255,255,255), width=lw_p)
+    draw_p.line([(S_prev-pad_p,pad_p),(pad_p,S_prev-pad_p)], fill=(255,255,255,255), width=lw_p)
+    r_p = lw_p//2
+    for px,py in [(pad_p,pad_p),(S_prev-pad_p,S_prev-pad_p),(S_prev-pad_p,pad_p),(pad_p,S_prev-pad_p)]:
+        draw_p.ellipse([px-r_p,py-r_p,px+r_p,py+r_p], fill=(255,255,255,255))
+    mask_p = Image.new('L',(S_prev,S_prev),0)
+    ImageDraw.Draw(mask_p).ellipse([0,0,S_prev-1,S_prev-1],fill=255)
+    img_hd.putalpha(mask_p)
 
-_, b64_408 = compress_to_target(img, 8480, '408')
-_, b64_800 = compress_to_target(img, 8604, '800')
+    preview = Path('logo_X_preview.png')
+    bg = Image.new('RGB',(S_prev,S_prev),(128,128,128))
+    bg.paste(img_hd,(0,0),img_hd)
+    bg.save(preview)
+    print(f'Preview guardado: {preview}')
 
-print('\nInyectando...')
-src  = SRC_B.read_bytes()
-data = inject_string(src,  408, b64_408)
-data = inject_string(data, 800, b64_800)
-OUT_B.write_bytes(data)
+    _, b64_408 = compress_to_target(img, 8480, '408')
+    _, b64_800 = compress_to_target(img, 8604, '800')
 
-pkg = build_3105(data)
-print(f'\nLISTO -> {OUT_3}')
-print(f'Tamaño: {len(pkg):,} bytes | Dev @BNXYUNG7 | Sin pass OK')
+    print('\nInyectando...')
+    src  = SRC_B.read_bytes()
+    data = inject_string(src,  408, b64_408)
+    data = inject_string(data, 800, b64_800)
+    OUT_B.write_bytes(data)
+
+    pkg = build_3105(data)
+    print(f'\nLISTO -> {OUT_3}')
+    print(f'Tamaño: {len(pkg):,} bytes | Dev @BNXYUNG7 | Sin pass OK')

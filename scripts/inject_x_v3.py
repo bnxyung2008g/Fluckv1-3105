@@ -113,26 +113,35 @@ def build_3105(payload):
     assert hashlib.sha256(b2['project']['rules'][0]['replacementData']).digest()==digs[rid]
     return pkg
 
-print('='*50)
-print('FLUCK V1.0.0 — Boton: fondo negro + X blanca')
-print('='*50)
+if __name__ == '__main__':
+    print('='*50)
+    print('FLUCK V1.0.0 — Boton: fondo negro + X blanca')
+    print('='*50)
 
-img = make_x_logo()
-preview = Path('logo_X_preview.png')
-img.save(preview)
-print(f'Preview: {preview}')
+    img = make_x_logo()
+    preview = Path('logo_X_preview.png')
+    img.save(preview)
+    print(f'Preview: {preview}')
 
-png408,b64_408 = compress_to_target(img, TARGET_408)
-print(f'[408] PNG={len(png408)}b  B64={len(b64_408)}ch')
+    png408, b64_408 = compress_to_target(img, TARGET_408)
+    if png408 is None:
+        sys.exit('ERROR: No se pudo comprimir imagen a TARGET_408')
+    print(f'[408] PNG={len(png408)}b  B64={len(b64_408)}ch')
 
-png800,b64_800 = compress_to_target(img, TARGET_800)
-print(f'[800] PNG={len(png800)}b  B64={len(b64_800)}ch')
+    png800, b64_800 = compress_to_target(img, TARGET_800)
+    if png800 is None:
+        sys.exit('ERROR: No se pudo comprimir imagen a TARGET_800')
+    print(f'[800] PNG={len(png800)}b  B64={len(b64_800)}ch')
 
-src = SRC_B.read_bytes()
-data = inject_string(src,  408, b64_408)
-data = inject_string(data, 800, b64_800)
-OUT_B.write_bytes(data)
+    src = SRC_B.read_bytes()
+    data = inject_string(src,  408, b64_408)
+    if data is None:
+        sys.exit('ERROR: fallo al inyectar string[408]')
+    data = inject_string(data, 800, b64_800)
+    if data is None:
+        sys.exit('ERROR: fallo al inyectar string[800]')
+    OUT_B.write_bytes(data)
 
-pkg = build_3105(data)
-print(f'\nLISTO → {OUT_3}')
-print(f'Tamano: {len(pkg):,} bytes | Sin pass | Dev @BNXYUNG7')
+    pkg = build_3105(data)
+    print(f'\nLISTO → {OUT_3}')
+    print(f'Tamano: {len(pkg):,} bytes | Sin pass | Dev @BNXYUNG7')
